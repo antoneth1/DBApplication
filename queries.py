@@ -103,6 +103,19 @@ def get_user_id(username=None, email=None) -> int:
     # Return the user ID if found, else None
     return result[0] if result else None
 
+def get_user_details_by_id(user_id):
+    """Fetches the first and last name of a user by their user ID."""
+    conn = db.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT first_name, last_name
+        FROM User
+        WHERE user_id = %s
+    """, (user_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return result  # Returns a tuple: (first_name, last_name)
+
 # Get University id by name
 def get_university_id_by_name(university_name) -> str:
     """Most important function, returns the university ID with a given university name"""

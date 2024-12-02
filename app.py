@@ -1,4 +1,5 @@
 import queries as m
+import initialize as i
 import mysql.connector
 import json
 import geocoder
@@ -6,6 +7,10 @@ from datetime import datetime
 
 # CLI Application Main
 if __name__ == "__main__":
+
+    i.initialize_database()
+    i.add_arbitrary_data()
+    
 
     username_input = None
     university_input = None
@@ -104,14 +109,74 @@ if __name__ == "__main__":
                     continue
 
                 m.clear_console()
-                print("Ride-Safe")
-                rides = m.view_rides(university_id)
-                for ride in rides:
-                    print(ride)
+                print("Available Rides:\n")
 
-                print("Press 'b' to return to the main menu.")
-                if input().lower() == 'b':
+                # Fetch available rides for the user's university
+                rides = m.view_rides(university_id)
+                
+                if not rides:
+                    print("No rides available for your university.")
+                    print("Press 'b' to return to the main menu.")
+                    if input().lower() == 'b':
+                        back_to_menu = True
+                        continue
+
+                # Display rides in a user-friendly format
+                ride_map = {}
+                for index, ride in enumerate(rides, start=1):
+                    # Fetch ride details
+                    ride_id = ride[0]
+                    created_by_user_id = ride[1]
+                    pickup_lat = ride[3]
+                    pickup_lon = ride[4]
+                    dropoff_lat = ride[5]
+                    dropoff_lon = ride[6]
+                    ride_date = ride[7]
+                    seats_available = ride[8]
+                    service_name = ride[10]
+
+                    # Fetch ride owner's name
+                    owner_details = m.get_user_details_by_id(created_by_user_id)
+                    owner_first_name = owner_details[0]
+                    owner_last_name = owner_details[1]
+
+                    # Display ride
+                    print(f"{index}. {owner_first_name} {owner_last_name}'s Ride")
+                    print(f"   Service: {service_name}")
+                    print(f"   Pickup: ({pickup_lat}, {pickup_lon})")
+                    print(f"   Dropoff: ({dropoff_lat}, {dropoff_lon})")
+                    print(f"   Date: {ride_date}")
+                    print(f"   Seats Available: {seats_available}")
+                    print("-" * 30)
+
+                    # Map user input to ride ID
+                    ride_map[str(index)] = ride_id
+
+                # Allow user to join a ride
+                print("Enter the number of the ride you'd like to join, or press 'b' to return to the main menu.")
+                user_choice = input().lower()
+
+                if user_choice == 'b':
                     back_to_menu = True
+                    continue
+
+                if user_choice in ride_map:
+                    selected_ride_id = ride_map[user_choice]
+
+                    # Request to join the ride
+                    try:
+                        current_user_id = m.get_user_id(None, email_input)
+                        m.request_to_join_ride(selected_ride_id, current_user_id)
+                        print("Successfully requested to join the ride.")
+                        m.approve_join_request(selected_ride_id, current_user_id)
+                        print("Ride join request approved!")
+                        
+                    except Exception as e:
+                        print(f"Error: {e}. Unable to join the ride.")
+
+                    print("Press 'b' to return to the main menu.")
+                    if input().lower() == 'b':
+                        back_to_menu = True
 
         # Quit
         elif rose == '4':
