@@ -24,3 +24,24 @@ SELECT u.user_id, u.first_name, u.last_name, r.ride_id, r.service_name
 FROM Ride r
 LEFT JOIN Rides_Users ru ON r.ride_id = ru.ride_id
 LEFT JOIN User u ON ru.user_id = u.user_id;
+
+-- Nested Query
+
+SELECT 
+    r.ride_id, 
+    r.service_name, 
+    r.ride_date, 
+    r.seats_available, 
+    u.university_name,
+    creator.first_name AS creator_first_name, 
+    creator.last_name AS creator_last_name
+FROM Ride r
+JOIN User creator ON r.created_by_user_id = creator.user_id
+JOIN University u ON r.university_id = u.university_id
+WHERE u.university_id IN (
+    SELECT university_id
+    FROM User
+    GROUP BY university_id
+    HAVING COUNT(user_id) > 5
+)
+ORDER BY r.ride_date;
