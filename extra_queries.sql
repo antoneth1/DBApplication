@@ -25,7 +25,7 @@ FROM Ride r
 LEFT JOIN Rides_Users ru ON r.ride_id = ru.ride_id
 LEFT JOIN User u ON ru.user_id = u.user_id;
 
--- Nested Query
+-- Nested Query. select rides from university's with more than 5 users
 
 SELECT 
     r.ride_id, 

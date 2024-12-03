@@ -110,5 +110,18 @@ def add_arbitrary_data():
             ON DUPLICATE KEY UPDATE username = username
         """, user)
 
+        rides = [
+        (1, 1, 42.3770, -71.1167, 42.3732, -71.1097, '2024-12-01 08:00:00', 3, 'Uber'),
+        (2, 1, 42.3770, -71.1167, 42.3650, -71.1039, '2024-12-01 09:30:00', 4, 'Lyft'),
+        (3, 1, 42.3770, -71.1167, 42.3700, -71.1078, '2024-12-01 10:45:00', 2, 'Uber')
+    ]
+
+    for ride in rides:
+        cursor.execute("""
+            INSERT INTO Ride (created_by_user_id, university_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, ride_date, seats_available, service_name)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE ride_date = VALUES(ride_date), seats_available = VALUES(seats_available)
+        """, ride)
+
     conn.commit()
     conn.close()
