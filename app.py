@@ -49,7 +49,11 @@ if __name__ == "__main__":
                 print("Last Name:")
                 last_name = input()
 
-                university_coords = geocoder.osm(university_input)
+                university_coords = geocoder.osm(
+                location=university_input,
+                url="https://nominatim.openstreetmap.org/search",  
+                headers={"User-Agent": "Ride-Safe Application"}  
+)
                 uni_latitude = university_coords.lat
                 uni_longitude = university_coords.lng
                 existing_universities = m.get_universities()  # Returns list
@@ -65,7 +69,6 @@ if __name__ == "__main__":
                 if input().lower() == 'b':
                     back_to_menu = True
 
-        # Connect a Ride
         elif rose == '2':
             back_to_menu = False  # Flag for submenu control
             while not back_to_menu:
@@ -80,23 +83,39 @@ if __name__ == "__main__":
                 service = 'Uber' if number_input == '1' else 'Lyft'
                 m.clear_console()
 
-                print("Ride-Safe\n")
-
                 try:
+                    # Use cached coordinates if available, otherwise fetch them
+                    if not university_id or not uni_latitude or not uni_longitude:
+                        ride_to_location = geocoder.osm(
+                        location=university_input,  # Location to search for
+                        url="https://nominatim.openstreetmap.org/search",  # Default OSM server URL
+                        headers={"User-Agent": "Ride-Safe Application"}  # Required User-Agent header
+)
+                        uni_latitude = ride_to_location.lat
+                        uni_longitude = ride_to_location.lng
+
+                        if uni_latitude is None or uni_longitude is None:
+                            raise ValueError(f"Unable to retrieve the location for {university_input}. Please check the university name.")
+
+                    # Retrieve the current user's ID
                     current_user_id = m.get_user_id(None, email_input)
-                    university_location = m.get_location_by_university(university_input)
+
+                    # Create the ride
                     m.create_ride(
                         current_user_id,
                         university_id,
-                        pickup=(longitude, latitude),
-                        dropoff=university_location,
+                        pickup=(latitude, longitude),
+                        dropoff=(uni_latitude, uni_longitude),
                         ride_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         seats=4,
                         service_name=service,
                     )
                     print("Ride Connected Successfully.")
+
+                except ValueError as ve:
+                    print(f"Error: {ve}")
                 except Exception as e:
-                    print(f"Error: {e}. Unable to connect your ride.")
+                    print(f"Unexpected error: {e}. Unable to connect your ride.")
 
                 print("Press 'b' to return to the main menu.")
                 if input().lower() == 'b':
@@ -184,7 +203,6 @@ if __name__ == "__main__":
         # Quit
         elif rose == '4':
             print("Exiting Ride-Safe. Have a great day!")
-            m.clear_console()
 
         # Invalid input
         else:
