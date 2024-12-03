@@ -91,10 +91,13 @@ def add_arbitrary_data():
     cursor.execute("SELECT university_id, university_name FROM University")
     universities = {name: uni_id for uni_id, name in cursor.fetchall()}
 
-    # Populate User table using correct university IDs
     users = [
         ('johndoe', 'johndoe@harvard.edu', 'John', 'Doe', universities['Harvard University']),
         ('janedoe', 'janedoe@harvard.edu', 'Jane', 'Doe', universities['Harvard University']),
+        ('acresce1', 'acresce1@harvard.edu', 'Anton', 'Crescente', universities['Harvard University']),
+        ('rcrist', 'rcrist@harvard.edu', 'Rose', 'Crist', universities['Harvard University']),
+        ('jchad', 'jchad@harvard.edu', 'Jack', 'Chadwick', universities['Harvard University']),
+        ('Harvardstudent3', 'harvardstudent3@harvard.edu', 'Harvard', 'Student', universities['Harvard University']),
         ('mike123', 'mike123@mit.edu', 'Mike', 'Smith', universities['MIT']),
         ('alice89', 'alice89@mit.edu', 'Alice', 'Johnson', universities['MIT']),
         ('bob_s', 'bob_s@stanford.edu', 'Bob', 'Stewart', universities['Stanford University']),
