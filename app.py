@@ -49,10 +49,13 @@ if __name__ == "__main__":
                 print("Last Name:")
                 last_name = input()
 
+                university_coords = geocoder.osm(university_input)
+                uni_latitude = university_coords.lat
+                uni_longitude = university_coords.lng
                 existing_universities = m.get_universities()  # Returns list
 
                 if university_input not in existing_universities:
-                    m.add_university(university_input, latitude, longitude)
+                    m.add_university(university_input, uni_latitude, uni_longitude)
 
                 university_id = m.get_university_id_by_name(university_input)
                 m.add_user(username_input, email_input, first_name, last_name, university_id)
